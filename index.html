@@ -3,101 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PafAlan – Jeu de cartes légendaires</title>
+    <title>PafAlan – Jeu de cartes à collectionner</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- =====================================================
-     PARTICULES MAGIQUES
-     ===================================================== -->
-<div class="magic-particles" id="particles"></div>
+    <!-- =====================================================
+         HEADER – barre de navigation principale
+         Contient : avatar/connexion | titre | nav | marque
+         ===================================================== -->
+    <header>
 
-<!-- =====================================================
-     HEADER
-     ===================================================== -->
-<header>
-    <div class="header-left">
-        <button class="avatar" id="avatarBtn" onclick="toggleAuthMenu()">
-            <span id="avatarLabel">Connexion</span>
-        </button>
-        <div class="auth-menu hidden" id="authMenu">
-            <button onclick="simulateLogin()">⚔️ Se connecter</button>
-            <button onclick="simulateLogin()">📜 S'inscrire</button>
+        <!-- GAUCHE : avatar cliquable + titre du site -->
+        <div class="header-left">
+
+            <!-- Bouton avatar : ouvre le menu connexion/inscription -->
+            <button class="avatar" id="avatarBtn" onclick="toggleAuthMenu()">
+                <!-- Texte dynamique : "Connexion" → "Mon compte" après login -->
+                <span id="avatarLabel">Connexion</span>
+            </button>
+
+            <!-- Menu déroulant auth (masqué par défaut, toggle au clic sur l'avatar) -->
+            <div class="auth-menu hidden" id="authMenu">
+                <button onclick="simulateLogin()">Se connecter</button>
+                <button>S'inscrire</button>
+            </div>
+
+            <!-- Titre du site -->
+            <h1 class="site-title">PafAlan</h1>
         </div>
-        <h1 class="site-title">PafAlan</h1>
-    </div>
-    <nav class="header-nav">
-        <a href="#" class="nav-btn active" id="nav-accueil"    onclick="navigate('accueil',   this); return false;">Accueil</a>
-        <a href="#" class="nav-btn"        id="nav-catalogue"  onclick="navigate('catalogue', this); return false;">Catalogue</a>
-        <a href="#" class="nav-btn disabled" id="nav-collection" onclick="if(!isLoggedIn)return false; navigate('collection', this); return false;" title="Connectez-vous pour accéder à votre collection">Collection</a>
-        <a href="#" class="nav-btn disabled" id="nav-combat"    title="Bientôt disponible">Combat</a>
-    </nav>
-    <div class="header-right">DOMATECH IT</div>
-</header>
+
+        <!-- CENTRE : liens de navigation principale -->
+        <nav class="header-nav">
+            <a href="#" class="nav-btn active">Accueil</a>
+            <a href="catalogue.html" class="nav-btn">Catalogue</a>
+
+            <!-- Collection : désactivée visuellement si l'utilisateur n'est pas connecté -->
+            <a href="#"
+               class="nav-btn disabled"
+               id="collectionBtn"
+               title="Connectez-vous pour accéder à votre collection">
+                Collection
+            </a>
+
+            <a href="#" class="nav-btn">Combat</a>
+        </nav>
+
+        <!-- DROITE : signature / marque -->
+        <div class="header-right">DOMATECH IT</div>
+
+    </header>
 
 
-<!-- =====================================================
-     PAGE : ACCUEIL
-     ===================================================== -->
-<div class="page active" id="page-accueil">
+    <!-- =====================================================
+         SCRIPTS – logique d'interface du header
+         ===================================================== -->
+    <script>
+        // État de connexion de l'utilisateur (false = non connecté)
+        let isLoggedIn = false;
 
-    <section class="hero">
-        <div class="hero-bg-runes"></div>
-        <div class="hero-orb hero-orb-1"></div>
-        <div class="hero-orb hero-orb-2"></div>
+        /**
+         * Affiche ou masque le menu connexion/inscription
+         * quand l'utilisateur clique sur l'avatar.
+         */
+        function toggleAuthMenu() {
+            const menu = document.getElementById('authMenu');
+            menu.classList.toggle('hidden');
+        }
 
-        <div class="hero-content">
-            <div class="hero-badge">✦ Jeu de cartes à collectionner ✦</div>
-            <h2 class="hero-title-main">PafAlan</h2>
-            <p class="hero-subtitle">L'univers des Douze en cartes légendaires</p>
-            <div class="hero-divider"></div>
-            <p class="hero-desc">
-                Partez à l'aventure dans les terres des Douze. Collectionnez des centaines de héros, créez votre deck de légende et affrontez d'autres joueurs dans des duels épiques.
-            </p>
-            <div class="hero-actions">
-                <button class="btn-hero btn-hero-primary" onclick="navigate('catalogue', document.getElementById('nav-catalogue'))">
-                    📚 Explorer le catalogue
-                </button>
-                <button class="btn-hero btn-hero-outline" onclick="simulateLogin()">
-                    ⚔️ Commencer l'aventure
-                </button>
+        /**
+         * Simule une connexion utilisateur.
+         * À remplacer plus tard par un vrai appel API / session.
+         */
+        function simulateLogin() {
+            isLoggedIn = true;
+
+            // Met à jour le label de l'avatar
+            document.getElementById('avatarLabel').textContent = 'Mon compte';
+
+            // Ajoute la classe "logged-in" pour changer le style de l'avatar
+            document.getElementById('avatarBtn').classList.add('logged-in');
+
+            // Déverrouille le bouton Collection
+            const collectionBtn = document.getElementById('collectionBtn');
+            collectionBtn.classList.remove('disabled');
+            collectionBtn.removeAttribute('title');
+
+            // Ferme le menu après connexion
+            document.getElementById('authMenu').classList.add('hidden');
+        }
+
+        /**
+         * Ferme le menu auth si l'utilisateur clique n'importe où
+         * en dehors de l'avatar (comportement "click outside").
+         */
+        document.addEventListener('click', function (e) {
+            const menu  = document.getElementById('authMenu');
+            const avatar = document.getElementById('avatarBtn');
+
+            if (!avatar.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+
+
+    <!-- =====================================================
+         MAIN – contenu principal de la page
+         ===================================================== -->
+    <main>
+
+        <!-- SECTION HÉRO – présentation du site -->
+        <section class="hero">
+
+            <!-- Bloc texte + image centrale -->
+            <div class="hero-content">
+                <h2 class="hero-title">PafAlan</h2>
+                <p class="hero-sub">Collectionnez les</p>
+                <p class="hero-sub hero-sub--gold">Héros Légendaires</p>
+
+                <!-- Zone illustration / description -->
+                <div class="hero-visual">
+                    <p>Partez à l'aventure, constituez votre deck et affrontez d'autres joueurs dans des combats épiques. Des centaines de cartes légendaires vous attendent.</p>
+                </div>
+
+                <!-- Boutons d'appel à l'action -->
+                <div class="hero-actions">
+                    <a href="#" class="btn-hero">Voir le catalogue</a>
+                    <a href="#" class="btn-hero btn-hero--outline">Combattre</a>
+                </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Cartes featured animées -->
-    <section style="padding: 2rem; overflow: hidden;">
-        <div id="featuredCards" style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;"></div>
-    </section>
+        </section>
 
-    <section class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="stat-number" id="totalCards">50</span>
-                <span class="stat-label">Cartes uniques</span>
-                <p class="stat-desc">Des communes aux mythiques, chaque carte raconte une histoire.</p>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number">6</span>
-                <span class="stat-label">Niveaux de rareté</span>
-                <p class="stat-desc">Commune, Peu commune, Rare, Épique, Légendaire, Mythique.</p>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number">5</span>
-                <span class="stat-label">Nations</span>
-                <p class="stat-desc">Bonta, Brâkmar, Astrub, Amakna, Frigost — choisissez votre camp.</p>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number">PvP</span>
-                <span class="stat-label">Combats à venir</span>
-                <p class="stat-desc">Défiez d'autres joueurs en temps réel, montez dans le classement.</p>
-            </div>
-        </div>
-    </section>
+        <!-- SECTION ANNONCES – chiffres clés du site -->
+        <section class="stats-section">
+            <div class="stats-grid">
 
-    <!-- Footer -->
+                <!-- Nombre de cartes disponibles -->
+                <div class="stat-card">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Cartes</span>
+                    <p class="stat-desc">Des dizaines de cartes à débloquer, des communes aux mythiques.</p>
+                </div>
+
+                <!-- Raretés -->
+                <div class="stat-card">
+                    <span class="stat-number">6</span>
+                    <span class="stat-label">Niveaux de rareté</span>
+                    <p class="stat-desc">Commune, Peu commune, Rare, Épique, Légendaire, Mythique.</p>
+                </div>
+
+                <!-- Joueurs inscrits -->
+                <div class="stat-card">
+                    <span class="stat-number">Au moins 2</span>
+                    <span class="stat-label">Joueurs inscrits</span>
+                    <p class="stat-desc">Rejoignez une communauté de collectionneurs et de combattants.</p>
+                </div>
+
+                <!-- Combats -->
+                <div class="stat-card">
+                    <span class="stat-number">PvP</span>
+                    <span class="stat-label">Combats en duel</span>
+                    <p class="stat-desc">Défiez d'autres joueurs en temps réel et grimpez dans le classement.</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER – réseaux sociaux, équipe, mentions
+         ===================================================== -->
     <footer>
+
+        <!-- Réseaux sociaux -->
         <div class="footer-socials">
             <a href="#" class="social-link" title="Instagram">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.31.975.975 1.247 2.242 1.31 3.608.058 1.266.069 1.646.069 4.85s-.011 3.584-.069 4.85c-.063 1.366-.335 2.633-1.31 3.608-.975.975-2.242 1.247-3.608 1.31-1.266.058-1.646.069-4.85.069s-3.584-.011-4.85-.069c-1.366-.063-2.633-.335-3.608-1.31-.975-.975-1.247-2.242-1.31-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.31-3.608.975-.975 2.242-1.247 3.608-1.31C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.014 7.052.072 5.197.157 3.355.745 2.014 2.086.673 3.427.085 5.268 0 7.124-.014 8.332 0 8.741 0 12c0 3.259.014 3.668.072 4.948.085 1.856.673 3.697 2.014 5.038 1.341 1.341 3.182 1.929 5.038 2.014C8.332 23.986 8.741 24 12 24s3.668-.014 4.948-.072c1.856-.085 3.697-.673 5.038-2.014 1.341-1.341 1.929-3.182 2.014-5.038.058-1.28.072-1.689.072-4.948s-.014-3.668-.072-4.948c-.085-1.856-.673-3.697-2.014-5.038C20.645.673 18.804.085 16.948 0 15.668-.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
@@ -112,511 +194,48 @@
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
             </a>
         </div>
+
+        <!-- Séparateur -->
         <div class="footer-divider"></div>
+
+        <!-- Équipe -->
         <div class="footer-team">
+
+            <!-- Maxime Blois – Sacrieur -->
             <div class="footer-member">
-                <div class="member-avatar avatar-sacrieur"><span class="avatar-initial">M</span></div>
+                <!-- Avatar stylisé Sacrieur : rouge sang, classe damage -->
+                <div class="member-avatar avatar-sacrieur">
+                    <span class="avatar-initial">M</span>
+                    <!-- Ailes de Sacrieur simulées en CSS via ::before/::after -->
+                </div>
                 <div class="member-info">
                     <span class="member-name">Maxime Blois</span>
                     <span class="member-class">Sacrieur</span>
                 </div>
             </div>
+
+            <!-- Mention du TP au centre -->
             <div class="footer-tp">
                 <span class="footer-tp-label">TP</span>
                 <span class="footer-tp-title">Mon Petit Univers</span>
                 <span class="footer-tp-year">2025 – 2026</span>
             </div>
+
+            <!-- Dorian Pachot – Iop -->
             <div class="footer-member">
-                <div class="member-avatar avatar-iop"><span class="avatar-initial">D</span></div>
+                <!-- Avatar stylisé Iop : bleu royal, classe guerrière -->
+                <div class="member-avatar avatar-iop">
+                    <span class="avatar-initial">D</span>
+                </div>
                 <div class="member-info">
                     <span class="member-name">Dorian Pachot</span>
                     <span class="member-class">Iop</span>
                 </div>
             </div>
+
         </div>
-        <p class="footer-domatech">Powered by DomatechIT</p>
+
     </footer>
-</div>
 
-
-<!-- =====================================================
-     PAGE : CATALOGUE
-     ===================================================== -->
-<div class="page" id="page-catalogue">
-    <div class="page-header">
-        <h2 class="page-title">Catalogue</h2>
-        <p class="page-subtitle">Toutes les cartes de l'univers des Douze</p>
-        <div class="page-title-divider"></div>
-    </div>
-
-    <div class="catalogue-search">
-        <input type="text" id="catSearch" placeholder="🔍 Rechercher une carte..." class="search-input" oninput="filterCatalogue()"/>
-        <div class="points-display" id="catPoints">— pts</div>
-    </div>
-
-    <div class="catalogue-layout">
-        <aside class="filters-panel">
-            <h2 class="filters-title">Filtres</h2>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Rareté</h3>
-                <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="commune"     onchange="filterCatalogue()"/><span class="rarity-dot dot-commune"></span> Commune</label>
-                <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="peu-commune" onchange="filterCatalogue()"/><span class="rarity-dot dot-peu-commune"></span> Peu commune</label>
-                <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="rare"        onchange="filterCatalogue()"/><span class="rarity-dot dot-rare"></span> Rare</label>
-                <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="epique"      onchange="filterCatalogue()"/><span class="rarity-dot dot-epique"></span> Épique</label>
-                <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="legendaire"  onchange="filterCatalogue()"/><span class="rarity-dot dot-legendaire"></span> Légendaire</label>
-                <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="mythique"    onchange="filterCatalogue()"/><span class="rarity-dot dot-mythique"></span> Mythique</label>
-            </div>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Type</h3>
-                <label class="filter-option"><input type="checkbox" data-group="type" data-value="personnage" onchange="filterCatalogue()"/> ⚔️ Personnages</label>
-                <label class="filter-option"><input type="checkbox" data-group="type" data-value="equipement" onchange="filterCatalogue()"/> 🛡️ Équipement</label>
-                <label class="filter-option"><input type="checkbox" data-group="type" data-value="ville"      onchange="filterCatalogue()"/> 🏰 Villes</label>
-            </div>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Nation</h3>
-                <label class="filter-option"><input type="checkbox" data-group="nation" data-value="bonta"   onchange="filterCatalogue()"/> 🔵 Bonta</label>
-                <label class="filter-option"><input type="checkbox" data-group="nation" data-value="brakmar" onchange="filterCatalogue()"/> 🔴 Brâkmar</label>
-                <label class="filter-option"><input type="checkbox" data-group="nation" data-value="astrub"  onchange="filterCatalogue()"/> 🟠 Astrub</label>
-                <label class="filter-option"><input type="checkbox" data-group="nation" data-value="amakna"  onchange="filterCatalogue()"/> 🟢 Amakna</label>
-                <label class="filter-option"><input type="checkbox" data-group="nation" data-value="frigost" onchange="filterCatalogue()"/> 🩵 Frigost</label>
-            </div>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Possession</h3>
-                <label class="filter-option filter-option--disabled"><input type="checkbox" disabled /> Possédé</label>
-                <label class="filter-option filter-option--disabled"><input type="checkbox" disabled /> Non possédé</label>
-                <span class="filter-locked-msg">🔒 Connectez-vous pour filtrer</span>
-            </div>
-        </aside>
-        <section class="cards-grid" id="catGrid"></section>
-    </div>
-</div>
-
-
-<!-- =====================================================
-     PAGE : COLLECTION
-     ===================================================== -->
-<div class="page" id="page-collection">
-    <div class="page-header">
-        <h2 class="page-title">Ma Collection</h2>
-        <p class="page-subtitle">Vos trésors des Douze nations</p>
-        <div class="page-title-divider"></div>
-    </div>
-
-    <div class="catalogue-search">
-        <input type="text" id="colSearch" placeholder="🔍 Rechercher une carte..." class="search-input" oninput="filterCollection()"/>
-        <div class="points-display" id="colCount">0 / 50</div>
-    </div>
-
-    <div class="catalogue-layout">
-        <aside class="filters-panel">
-            <h2 class="filters-title">Filtres</h2>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Rareté</h3>
-                <label class="filter-option"><input type="checkbox" data-group="col-rarity" data-value="commune"     onchange="filterCollection()"/><span class="rarity-dot dot-commune"></span> Commune</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-rarity" data-value="peu-commune" onchange="filterCollection()"/><span class="rarity-dot dot-peu-commune"></span> Peu commune</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-rarity" data-value="rare"        onchange="filterCollection()"/><span class="rarity-dot dot-rare"></span> Rare</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-rarity" data-value="epique"      onchange="filterCollection()"/><span class="rarity-dot dot-epique"></span> Épique</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-rarity" data-value="legendaire"  onchange="filterCollection()"/><span class="rarity-dot dot-legendaire"></span> Légendaire</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-rarity" data-value="mythique"    onchange="filterCollection()"/><span class="rarity-dot dot-mythique"></span> Mythique</label>
-            </div>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Type</h3>
-                <label class="filter-option"><input type="checkbox" data-group="col-type" data-value="personnage" onchange="filterCollection()"/> ⚔️ Personnages</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-type" data-value="equipement" onchange="filterCollection()"/> 🛡️ Équipement</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-type" data-value="ville"      onchange="filterCollection()"/> 🏰 Villes</label>
-            </div>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Nation</h3>
-                <label class="filter-option"><input type="checkbox" data-group="col-nation" data-value="bonta"   onchange="filterCollection()"/> 🔵 Bonta</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-nation" data-value="brakmar" onchange="filterCollection()"/> 🔴 Brâkmar</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-nation" data-value="astrub"  onchange="filterCollection()"/> 🟠 Astrub</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-nation" data-value="amakna"  onchange="filterCollection()"/> 🟢 Amakna</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-nation" data-value="frigost" onchange="filterCollection()"/> 🩵 Frigost</label>
-            </div>
-            <div class="filter-group">
-                <h3 class="filter-group-title">Possession</h3>
-                <label class="filter-option"><input type="checkbox" data-group="col-owned" data-value="owned"     onchange="filterCollection()"/> ✅ Possédé</label>
-                <label class="filter-option"><input type="checkbox" data-group="col-owned" data-value="not-owned" onchange="filterCollection()"/> ❌ Non possédé</label>
-            </div>
-        </aside>
-        <section class="cards-grid" id="colGrid"></section>
-    </div>
-
-    <!-- Deck Builder -->
-    <section class="deck-builder-section">
-        <div class="deck-builder-header">
-            <h2 class="deck-builder-title">✦ Deck Builder</h2>
-            <select class="deck-select" id="deckSelect" onchange="switchDeck(this.value)"></select>
-            <button class="deck-new-btn"    onclick="createDeck()">+ Nouveau</button>
-            <button class="deck-rename-btn" onclick="renameDeck()">✏️ Renommer</button>
-            <button class="deck-delete-btn" onclick="deleteDeck()">🗑️ Supprimer</button>
-            <span class="deck-count" id="deckCount">0 / 25</span>
-        </div>
-        <div class="deck-slots" id="deckSlots"></div>
-        <p class="deck-hint">Cliquez sur une carte possédée pour l'ajouter ou la retirer du deck actif.</p>
-    </section>
-</div>
-
-
-<!-- =====================================================
-     MODAL DÉTAIL CARTE
-     ===================================================== -->
-<div class="card-modal-backdrop hidden" id="cardModal" onclick="closeModal(event)">
-    <div class="card-modal">
-        <button class="modal-close" onclick="closeModal()">✕</button>
-        <div class="card-modal-image" id="modalImage"></div>
-        <h3 class="modal-card-name" id="modalName"></h3>
-        <p class="modal-card-meta" id="modalMeta"></p>
-        <div class="modal-stats" id="modalStats"></div>
-        <p class="modal-lore" id="modalLore"></p>
-        <button class="modal-action-btn" id="modalAction"></button>
-    </div>
-</div>
-
-
-<!-- =====================================================
-     SCRIPTS
-     ===================================================== -->
-<script src="game.js"></script>
-<script>
-
-/* ---- Particules ---- */
-(function() {
-    const container = document.getElementById('particles');
-    const colors = ['#d4a843','#f0c870','#8b1a1a','#c0392b','#4a90d9'];
-    for (let i = 0; i < 30; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.cssText = `
-            left: ${Math.random()*100}%;
-            --dur: ${6 + Math.random()*10}s;
-            --delay: ${-Math.random()*15}s;
-            background: ${colors[Math.floor(Math.random()*colors.length)]};
-            width: ${1+Math.random()*3}px;
-            height: ${1+Math.random()*3}px;
-        `;
-        container.appendChild(p);
-    }
-})();
-
-
-/* ---- Navigation SPA ---- */
-let isLoggedIn = false;
-let currentPage = 'accueil';
-
-function navigate(page, el) {
-    if (!isLoggedIn && (page === 'collection' || page === 'combat')) return;
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + page).classList.add('active');
-    if (el) el.classList.add('active');
-    currentPage = page;
-    if (page === 'catalogue')  { renderCatalogue(); filterCatalogue(); }
-    if (page === 'collection') { renderCollection(); }
-    window.scrollTo(0, 0);
-}
-
-
-/* ---- Auth ---- */
-function toggleAuthMenu() {
-    document.getElementById('authMenu').classList.toggle('hidden');
-}
-function simulateLogin() {
-    isLoggedIn = true;
-    document.getElementById('avatarLabel').textContent = 'Mon compte';
-    document.getElementById('avatarBtn').classList.add('logged-in');
-    const colBtn = document.getElementById('nav-collection');
-    colBtn.classList.remove('disabled');
-    colBtn.removeAttribute('title');
-    document.getElementById('authMenu').classList.add('hidden');
-}
-document.addEventListener('click', e => {
-    if (!document.getElementById('avatarBtn').contains(e.target))
-        document.getElementById('authMenu').classList.add('hidden');
-});
-
-
-/* ---- Helpers ---- */
-const TYPE_ICONS    = { personnage: '⚔️', equipement: '🛡️', ville: '🏰' };
-const NATION_EMOJIS = { bonta: '🔵', brakmar: '🔴', astrub: '🟠', amakna: '🟢', frigost: '🩵' };
-
-function getChecked(group) {
-    return [...document.querySelectorAll(`input[data-group="${group}"]:checked`)].map(cb => cb.dataset.value);
-}
-
-function buildCardEl(i, opts = {}) {
-    const card  = Game.CARDS[i];
-    const price = Game.getPrice(card.rarity, card.type);
-    const owned = Game.owns(i);
-    const inDeck = opts.inDeck || false;
-    const showBuy = opts.showBuy || false;
-
-    const div = document.createElement('div');
-    div.className = [
-        'card-item',
-        `rarity-${card.rarity}`,
-        `type-${card.type}`,
-        opts.notOwned && !owned ? 'not-owned' : '',
-        inDeck ? 'in-deck' : ''
-    ].join(' ').trim();
-
-    div.dataset.index  = i;
-    div.dataset.rarity = card.rarity;
-    div.dataset.type   = card.type;
-    div.dataset.nation = card.nation;
-    div.dataset.name   = card.name.toLowerCase();
-    div.dataset.owned  = owned ? 'owned' : 'not-owned';
-
-    div.innerHTML = `
-        <div class="card-rarity-bar"></div>
-        <div class="card-image">
-            <span class="card-type-icon">${TYPE_ICONS[card.type]}</span>
-            <div class="card-nation-badge" style="background:${Game.NATION_COLORS[card.nation]}22; border-color:${Game.NATION_COLORS[card.nation]}55;">
-                ${NATION_EMOJIS[card.nation]}
-            </div>
-        </div>
-        <span class="card-name">${card.name}</span>
-        <span class="card-rarity-label">${Game.RARITY_LABELS[card.rarity]}</span>
-        <div class="card-stats">
-            ${card.atk > 0 ? `<span class="stat-atk">⚔ ${card.atk}</span>` : ''}
-            ${card.def > 0 ? `<span class="stat-def">🛡 ${card.def}</span>` : ''}
-            ${card.hp  > 0 ? `<span class="stat-hp">♥ ${card.hp}</span>`  : ''}
-        </div>
-        <div class="card-price-row">
-            ${showBuy
-                ? `<span class="card-price">${price} pts</span>
-                   ${owned
-                       ? '<span class="card-owned-badge">Possédé</span>'
-                       : `<button class="card-buy-btn" onclick="event.stopPropagation();buyCard(${i})">Acheter</button>`
-                   }`
-                : (inDeck ? '<span class="card-indeck-badge">Dans le deck</span>' : '')
-            }
-        </div>
-    `;
-
-    div.addEventListener('click', () => {
-        if (opts.onClickDeck && owned) opts.onClickDeck(i);
-        else openModal(i, showBuy);
-    });
-
-    return div;
-}
-
-
-/* ---- CATALOGUE ---- */
-function renderCatalogue() {
-    document.getElementById('catPoints').textContent = Game.getPoints() + ' pts';
-    const grid = document.getElementById('catGrid');
-    grid.innerHTML = '';
-    Game.CARDS.forEach((_, i) => {
-        grid.appendChild(buildCardEl(i, { showBuy: true }));
-    });
-}
-
-function filterCatalogue() {
-    const rarities = getChecked('rarity');
-    const types    = getChecked('type');
-    const nations  = getChecked('nation');
-    const search   = document.getElementById('catSearch').value.trim().toLowerCase();
-    document.querySelectorAll('#catGrid .card-item').forEach(c => {
-        const ok = (rarities.length === 0 || rarities.includes(c.dataset.rarity))
-                && (types.length    === 0 || types.includes(c.dataset.type))
-                && (nations.length  === 0 || nations.includes(c.dataset.nation))
-                && (search          === '' || c.dataset.name.includes(search));
-        c.style.display = ok ? '' : 'none';
-    });
-}
-
-function buyCard(index) {
-    const ok = Game.buyCard(index);
-    const el = document.getElementById('catPoints');
-    if (!ok) {
-        el.classList.add('points-insufficient');
-        setTimeout(() => el.classList.remove('points-insufficient'), 600);
-        return;
-    }
-    renderCatalogue();
-    filterCatalogue();
-}
-
-
-/* ---- COLLECTION ---- */
-function renderCollection() {
-    document.getElementById('colCount').textContent = `${Game.getCollection().size} / ${Game.CARDS.length}`;
-    const sorted = Array.from({ length: Game.CARDS.length }, (_, i) => i)
-        .sort((a, b) => Game.RARITY_ORDER.indexOf(Game.CARDS[a].rarity) - Game.RARITY_ORDER.indexOf(Game.CARDS[b].rarity));
-
-    const decks     = Game.getDecks();
-    const activeIdx = Math.min(Game.getActiveDeckIdx(), decks.length - 1);
-    const activeDeck = decks[activeIdx] ?? { cards: [] };
-
-    const grid = document.getElementById('colGrid');
-    grid.innerHTML = '';
-    sorted.forEach(i => {
-        const inDeck = activeDeck.cards.includes(i);
-        grid.appendChild(buildCardEl(i, {
-            notOwned: true,
-            inDeck,
-            onClickDeck: (idx) => { toggleInDeck(idx); }
-        }));
-    });
-    renderDeckBuilder();
-    filterCollection();
-}
-
-function filterCollection() {
-    const rarities = getChecked('col-rarity');
-    const types    = getChecked('col-type');
-    const nations  = getChecked('col-nation');
-    const owned    = getChecked('col-owned');
-    const search   = document.getElementById('colSearch').value.trim().toLowerCase();
-    document.querySelectorAll('#colGrid .card-item').forEach(c => {
-        const ok = (rarities.length === 0 || rarities.includes(c.dataset.rarity))
-                && (types.length    === 0 || types.includes(c.dataset.type))
-                && (nations.length  === 0 || nations.includes(c.dataset.nation))
-                && (owned.length    === 0 || owned.includes(c.dataset.owned))
-                && (search          === '' || c.dataset.name.includes(search));
-        c.style.display = ok ? '' : 'none';
-    });
-}
-
-
-/* ---- DECK BUILDER ---- */
-function renderDeckBuilder() {
-    const decks     = Game.getDecks();
-    const activeIdx = Math.min(Game.getActiveDeckIdx(), decks.length - 1);
-    const deck      = decks[activeIdx] ?? { name: 'Deck 1', cards: [] };
-
-    const select = document.getElementById('deckSelect');
-    select.innerHTML = decks.map((d, i) =>
-        `<option value="${i}" ${i === activeIdx ? 'selected' : ''}>${d.name} (${d.cards.length}/25)</option>`
-    ).join('');
-
-    document.getElementById('deckCount').textContent = `${deck.cards.length} / 25`;
-
-    const slotsEl = document.getElementById('deckSlots');
-    let html = '';
-    for (let s = 0; s < 25; s++) {
-        const cIdx = deck.cards[s];
-        if (cIdx !== undefined) {
-            const c = Game.CARDS[cIdx];
-            html += `<div class="deck-slot filled rarity-${c.rarity}" onclick="removeFromDeck(${cIdx})" title="Retirer ${c.name}">
-                        <span class="deck-slot-name" style="font-family:var(--font-title);font-size:.58rem;line-height:1.2;">${c.name}</span>
-                     </div>`;
-        } else {
-            html += `<div class="deck-slot empty"></div>`;
-        }
-    }
-    slotsEl.innerHTML = html;
-}
-
-function toggleInDeck(cardIdx) {
-    const decks     = Game.getDecks();
-    const activeIdx = Math.min(Game.getActiveDeckIdx(), decks.length - 1);
-    const deck      = decks[activeIdx];
-    const pos       = deck.cards.indexOf(cardIdx);
-    if (pos >= 0) deck.cards.splice(pos, 1);
-    else { if (deck.cards.length >= 25) return; deck.cards.push(cardIdx); }
-    Game.setDecks(decks);
-    renderCollection();
-}
-function removeFromDeck(idx) { toggleInDeck(idx); }
-
-function createDeck() {
-    const decks = Game.getDecks();
-    decks.push({ name: `Deck ${decks.length + 1}`, cards: [] });
-    Game.setDecks(decks);
-    Game.setActiveDeckIdx(decks.length - 1);
-    renderCollection();
-}
-function switchDeck(idx) { Game.setActiveDeckIdx(parseInt(idx)); renderCollection(); }
-function renameDeck() {
-    const decks = Game.getDecks();
-    const activeIdx = Game.getActiveDeckIdx();
-    const name = prompt('Nouveau nom du deck :', decks[activeIdx].name);
-    if (!name?.trim()) return;
-    decks[activeIdx].name = name.trim();
-    Game.setDecks(decks);
-    renderDeckBuilder();
-}
-function deleteDeck() {
-    const decks = Game.getDecks();
-    if (decks.length <= 1) { alert('Impossible de supprimer le dernier deck.'); return; }
-    decks.splice(Game.getActiveDeckIdx(), 1);
-    Game.setDecks(decks);
-    Game.setActiveDeckIdx(0);
-    renderCollection();
-}
-
-
-/* ---- MODAL ---- */
-let modalCardIndex = null;
-
-function openModal(i, showBuy = false) {
-    modalCardIndex = i;
-    const card  = Game.CARDS[i];
-    const price = Game.getPrice(card.rarity, card.type);
-    const owned = Game.owns(i);
-
-    document.getElementById('modalImage').innerHTML = `<span style="font-size:5rem;opacity:.3">${TYPE_ICONS[card.type]}</span>`;
-    document.getElementById('modalImage').style.cssText = `
-        width:100%; aspect-ratio:3/2; border-radius:8px;
-        background:linear-gradient(135deg,rgba(0,0,0,.5),rgba(212,168,67,.05));
-        border:1px solid rgba(212,168,67,.2); display:flex; align-items:center;
-        justify-content:center; margin-bottom:1.2rem;`;
-    document.getElementById('modalName').textContent = card.name;
-    document.getElementById('modalMeta').textContent =
-        `${Game.RARITY_LABELS[card.rarity]} · ${card.type.charAt(0).toUpperCase()+card.type.slice(1)} · ${NATION_EMOJIS[card.nation]} ${card.nation.charAt(0).toUpperCase()+card.nation.slice(1)}`;
-
-    const statsEl = document.getElementById('modalStats');
-    statsEl.innerHTML = [
-        card.atk > 0 ? `<div class="modal-stat"><span class="modal-stat-val stat-atk">${card.atk}</span><span class="modal-stat-key">Attaque</span></div>` : '',
-        card.def > 0 ? `<div class="modal-stat"><span class="modal-stat-val stat-def">${card.def}</span><span class="modal-stat-key">Défense</span></div>` : '',
-        card.hp  > 0 ? `<div class="modal-stat"><span class="modal-stat-val stat-hp">${card.hp}</span><span class="modal-stat-key">Points de vie</span></div>` : '',
-    ].join('');
-
-    document.getElementById('modalLore').textContent = card.lore;
-
-    const btn = document.getElementById('modalAction');
-    if (owned) {
-        btn.textContent = '✅ Déjà dans votre collection';
-        btn.className = 'modal-action-btn modal-owned-btn';
-        btn.onclick = null;
-    } else if (showBuy) {
-        btn.textContent = `💰 Acheter pour ${price} pts`;
-        btn.className = 'modal-action-btn modal-buy-btn';
-        btn.onclick = () => { buyCard(i); closeModal(); };
-    } else {
-        btn.style.display = 'none';
-    }
-
-    document.getElementById('cardModal').classList.remove('hidden');
-}
-
-function closeModal(e) {
-    if (!e || e.target === document.getElementById('cardModal'))
-        document.getElementById('cardModal').classList.add('hidden');
-}
-
-
-/* ---- FEATURED CARDS (accueil) ---- */
-function renderFeatured() {
-    const mythiques   = Game.CARDS.map((c, i) => ({c, i})).filter(x => x.c.rarity === 'mythique');
-    const legendaires = Game.CARDS.map((c, i) => ({c, i})).filter(x => x.c.rarity === 'legendaire');
-    const featured    = [...mythiques, ...legendaires].slice(0, 6);
-
-    const container = document.getElementById('featuredCards');
-    featured.forEach(({c, i}) => {
-        const div = document.createElement('div');
-        div.style.cssText = 'animation: fadeInUp .6s ease both; max-width:160px; flex: 0 0 160px; cursor:pointer;';
-        div.appendChild(buildCardEl(i, {}));
-        container.appendChild(div);
-    });
-}
-
-document.getElementById('totalCards').textContent = Game.CARDS.length + '+';
-renderFeatured();
-
-</script>
 </body>
 </html>

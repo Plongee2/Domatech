@@ -1,0 +1,20 @@
+# Configuration locale
+config.php
+.env
+
+# Logs
+*.log
+
+# Dépendances
+/vendor/
+node_modules/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

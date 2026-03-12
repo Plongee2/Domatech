@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PafAlan – Catalogue</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+    <header>
+        <div class="header-left">
+            <button class="avatar" id="avatarBtn" onclick="toggleAuthMenu()">
+                <span id="avatarLabel">Connexion</span>
+            </button>
+            <div class="auth-menu hidden" id="authMenu">
+                <button onclick="simulateLogin()">Se connecter</button>
+                <button>S'inscrire</button>
+            </div>
+            <h1 class="site-title">PafAlan</h1>
+        </div>
+        <nav class="header-nav">
+            <a href="index.html"      class="nav-btn">Accueil</a>
+            <a href="catalogue.html"  class="nav-btn active">Catalogue</a>
+            <a href="#" class="nav-btn disabled" id="collectionBtn"
+               title="Connectez-vous pour accéder à votre collection">Collection</a>
+            <a href="#" class="nav-btn">Combat</a>
+        </nav>
+        <div class="header-right">DOMATECH IT</div>
+    </header>
+
+
+    <!-- =====================================================
+         MAIN – catalogue avec prix et achat
+         ===================================================== -->
+    <main class="catalogue-main">
+
+        <!-- Barre de recherche + solde du joueur -->
+        <div class="catalogue-search">
+            <input type="text" id="searchInput" placeholder="Rechercher une carte..."
+                   class="search-input" oninput="applyFilters()" />
+            <div class="points-display" id="pointsDisplay">— pts</div>
+        </div>
+
+        <div class="catalogue-layout">
+
+            <!-- ---- SIDEBAR FILTRES ---- -->
+            <aside class="filters-panel">
+                <h2 class="filters-title">Filtres</h2>
+
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Rareté</h3>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="commune"     onchange="applyFilters()"/><span class="rarity-dot dot-commune"></span> Commune</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="peu-commune" onchange="applyFilters()"/><span class="rarity-dot dot-peu-commune"></span> Peu commune</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="rare"        onchange="applyFilters()"/><span class="rarity-dot dot-rare"></span> Rare</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="epique"      onchange="applyFilters()"/><span class="rarity-dot dot-epique"></span> Épique</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="legendaire"  onchange="applyFilters()"/><span class="rarity-dot dot-legendaire"></span> Légendaire</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="mythique"    onchange="applyFilters()"/><span class="rarity-dot dot-mythique"></span> Mythique</label>
+                </div>
+
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Type</h3>
+                    <label class="filter-option"><input type="checkbox" data-group="type" data-value="personnage" onchange="applyFilters()"/> Personnages</label>
+                    <label class="filter-option"><input type="checkbox" data-group="type" data-value="equipement" onchange="applyFilters()"/> Équipement</label>
+                    <label class="filter-option"><input type="checkbox" data-group="type" data-value="ville"      onchange="applyFilters()"/> Villes</label>
+                </div>
+
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Nation</h3>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="bonta"   onchange="applyFilters()"/> Bonta</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="brakmar" onchange="applyFilters()"/> Brâkmar</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="astrub"  onchange="applyFilters()"/> Astrub</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="amakna"  onchange="applyFilters()"/> Amakna</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="frigost" onchange="applyFilters()"/> Frigost</label>
+                </div>
+
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Possession</h3>
+                    <label class="filter-option filter-option--disabled"><input type="checkbox" disabled /> Possédé</label>
+                    <label class="filter-option filter-option--disabled"><input type="checkbox" disabled /> Non possédé</label>
+                    <span class="filter-locked-msg">Connectez-vous pour filtrer</span>
+                </div>
+            </aside>
+
+            <!-- ---- GRILLE – générée par JS via Game.CARDS ---- -->
+            <section class="cards-grid-catalogue" id="cardsGrid"></section>
+
+        </div>
+    </main>
+
+
+    <!-- =====================================================
+         MODAL – carte agrandie
+         ===================================================== -->
+    <div class="card-modal-overlay" id="cardModal" onclick="closeCardModal()">
+        <div class="card-modal-inner" onclick="event.stopPropagation()">
+            <button class="card-modal-close" onclick="closeCardModal()">✕</button>
+            <div id="cardModalFrame"></div>
+            <div class="card-modal-info" id="cardModalInfo"></div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         SCRIPTS
+         ===================================================== -->
+    <script src="game.js"></script>
+    <script>
+
+        /* ---- Header ---- */
+        let isLoggedIn = false;
+
+        function toggleAuthMenu() {
+            document.getElementById('authMenu').classList.toggle('hidden');
+        }
+        function simulateLogin() {
+            isLoggedIn = true;
+            document.getElementById('avatarLabel').textContent = 'Mon compte';
+            document.getElementById('avatarBtn').classList.add('logged-in');
+            const btn = document.getElementById('collectionBtn');
+            btn.classList.remove('disabled');
+            btn.href = 'collection.html';
+            btn.removeAttribute('title');
+            document.getElementById('authMenu').classList.add('hidden');
+        }
+        document.addEventListener('click', e => {
+            if (!document.getElementById('avatarBtn').contains(e.target))
+                document.getElementById('authMenu').classList.add('hidden');
+        });
+
+
+        /* ---- Rendu des cartes depuis Game.CARDS ---- */
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            Game.CARDS.forEach((card, i) => {
+                const owned = Game.owns(i);
+                const price = Game.getPrice(card.rarity, card.type);
+
+                const div = document.createElement('div');
+                div.className = `card-item rarity-${card.rarity} type-${card.type}`;
+                div.dataset.index  = i;
+                div.dataset.rarity = card.rarity;
+                div.dataset.type   = card.type;
+                div.dataset.nation = card.nation;
+                div.dataset.name   = card.name.toLowerCase();
+
+                div.innerHTML = `
+                    <div class="card-image"></div>
+                    <span class="card-name">${card.name}</span>
+                    <span class="card-price">${price} pts</span>
+                    ${owned
+                        ? '<span class="card-owned-badge">Possédé</span>'
+                        : `<button class="card-buy-btn" onclick="event.stopPropagation(); buyCard(${i})">Acheter</button>`
+                    }
+                `;
+                div.addEventListener('click', () => openCardModal(i));
+
+                grid.appendChild(div);
+            });
+
+            updatePoints();
+        }
+
+        /* Acheter une carte */
+        function buyCard(index) {
+            const ok = Game.buyCard(index);
+            if (!ok) {
+                // Flash rouge sur le compteur de points si fonds insuffisants
+                const el = document.getElementById('pointsDisplay');
+                el.classList.add('points-insufficient');
+                setTimeout(() => el.classList.remove('points-insufficient'), 600);
+                return;
+            }
+            renderCards();
+            applyFilters();
+        }
+
+        /* Met à jour l'affichage du solde */
+        function updatePoints() {
+            document.getElementById('pointsDisplay').textContent = Game.getPoints() + ' pts';
+        }
+
+
+        /* ---- Filtres (même logique que la version précédente) ---- */
+
+        function getChecked(group) {
+            return [...document.querySelectorAll(`input[data-group="${group}"]:checked`)]
+                .map(cb => cb.dataset.value);
+        }
+
+        function applyFilters() {
+            const rarities = getChecked('rarity');
+            const types    = getChecked('type');
+            const nations  = getChecked('nation');
+            const search   = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            document.querySelectorAll('.card-item').forEach(card => {
+                const ok = (rarities.length === 0 || rarities.includes(card.dataset.rarity))
+                        && (types.length    === 0 || types.includes(card.dataset.type))
+                        && (nations.length  === 0 || nations.includes(card.dataset.nation))
+                        && (search          === '' || card.dataset.name.includes(search));
+                card.style.display = ok ? '' : 'none';
+            });
+        }
+
+
+        /* ---- Modal ---- */
+
+        function openCardModal(index) {
+            const card  = Game.CARDS[index];
+            const price = Game.getPrice(card.rarity, card.type);
+            const owned = Game.owns(index);
+
+            const RARITY_LABELS = {
+                'commune': 'Commune', 'peu-commune': 'Peu commune',
+                'rare': 'Rare', 'epique': 'Épique',
+                'legendaire': 'Légendaire', 'mythique': 'Mythique'
+            };
+            const TYPE_LABELS = {
+                'personnage': 'Personnage', 'equipement': 'Équipement', 'ville': 'Ville'
+            };
+            const NATION_LABELS = {
+                'bonta': 'Bonta', 'brakmar': 'Brâkmar',
+                'astrub': 'Astrub', 'amakna': 'Amakna', 'frigost': 'Frigost'
+            };
+
+            // Carte agrandie
+            const frame = document.getElementById('cardModalFrame');
+            frame.className = `card-item card-modal-card rarity-${card.rarity} type-${card.type}`;
+            frame.innerHTML = `<div class="card-image"></div>`;
+
+            // Infos
+            document.getElementById('cardModalInfo').innerHTML = `
+                <h2 class="card-modal-name">${card.name}</h2>
+                <div class="card-modal-meta">
+                    <div class="card-modal-meta-row">
+                        <span class="card-modal-meta-label">Type</span>
+                        <span class="card-modal-meta-value">${TYPE_LABELS[card.type]}</span>
+                    </div>
+                    <div class="card-modal-meta-row">
+                        <span class="card-modal-meta-label">Rareté</span>
+                        <span class="card-modal-meta-value">${RARITY_LABELS[card.rarity]}</span>
+                    </div>
+                    <div class="card-modal-meta-row">
+                        <span class="card-modal-meta-label">Nation</span>
+                        <span class="card-modal-meta-value">${NATION_LABELS[card.nation]}</span>
+                    </div>
+                    <div class="card-modal-meta-row">
+                        <span class="card-modal-meta-label">Prix</span>
+                        <span class="card-modal-meta-value">${price} pts</span>
+                    </div>
+                </div>
+                ${owned
+                    ? '<span class="card-modal-owned-badge">Possédé</span>'
+                    : `<button class="card-modal-action-btn" onclick="buyCard(${index}); closeCardModal()">Acheter</button>`
+                }
+            `;
+
+            document.getElementById('cardModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCardModal() {
+            document.getElementById('cardModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeCardModal();
+        });
+
+
+        /* ---- Init ---- */
+        renderCards();
+
+    </script>
+
+</body>
+</html>

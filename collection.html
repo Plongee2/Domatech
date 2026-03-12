@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PafAlan – Collection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+    <header>
+        <div class="header-left">
+            <button class="avatar logged-in" id="avatarBtn" onclick="toggleAuthMenu()">
+                <span id="avatarLabel">Mon compte</span>
+            </button>
+            <div class="auth-menu hidden" id="authMenu">
+                <button onclick="simulateLogout()">Se déconnecter</button>
+            </div>
+            <h1 class="site-title">PafAlan</h1>
+        </div>
+        <nav class="header-nav">
+            <a href="index.html"     class="nav-btn">Accueil</a>
+            <a href="catalogue.html" class="nav-btn">Catalogue</a>
+            <a href="collection.html" class="nav-btn active" id="collectionBtn">Collection</a>
+            <a href="#" class="nav-btn">Combat</a>
+        </nav>
+        <div class="header-right">DOMATECH IT</div>
+    </header>
+
+
+    <!-- =====================================================
+         MAIN – collection + deck builder
+         ===================================================== -->
+    <main class="catalogue-main">
+
+        <!-- Barre de recherche -->
+        <div class="catalogue-search">
+            <input type="text" id="searchInput" placeholder="Rechercher une carte..."
+                   class="search-input" oninput="applyFilters()" />
+            <!-- Compteur : cartes possédées / total -->
+            <div class="points-display" id="collectionCount">0 / 50</div>
+        </div>
+
+        <div class="catalogue-layout">
+
+            <!-- ---- SIDEBAR FILTRES ---- -->
+            <aside class="filters-panel">
+                <h2 class="filters-title">Filtres</h2>
+
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Rareté</h3>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="commune"     onchange="applyFilters()"/><span class="rarity-dot dot-commune"></span> Commune</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="peu-commune" onchange="applyFilters()"/><span class="rarity-dot dot-peu-commune"></span> Peu commune</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="rare"        onchange="applyFilters()"/><span class="rarity-dot dot-rare"></span> Rare</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="epique"      onchange="applyFilters()"/><span class="rarity-dot dot-epique"></span> Épique</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="legendaire"  onchange="applyFilters()"/><span class="rarity-dot dot-legendaire"></span> Légendaire</label>
+                    <label class="filter-option"><input type="checkbox" data-group="rarity" data-value="mythique"    onchange="applyFilters()"/><span class="rarity-dot dot-mythique"></span> Mythique</label>
+                </div>
+
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Type</h3>
+                    <label class="filter-option"><input type="checkbox" data-group="type" data-value="personnage" onchange="applyFilters()"/> Personnages</label>
+                    <label class="filter-option"><input type="checkbox" data-group="type" data-value="equipement" onchange="applyFilters()"/> Équipement</label>
+                    <label class="filter-option"><input type="checkbox" data-group="type" data-value="ville"      onchange="applyFilters()"/> Villes</label>
+                </div>
+
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Nation</h3>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="bonta"   onchange="applyFilters()"/> Bonta</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="brakmar" onchange="applyFilters()"/> Brâkmar</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="astrub"  onchange="applyFilters()"/> Astrub</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="amakna"  onchange="applyFilters()"/> Amakna</label>
+                    <label class="filter-option"><input type="checkbox" data-group="nation" data-value="frigost" onchange="applyFilters()"/> Frigost</label>
+                </div>
+
+                <!-- Filtre possession fonctionnel ici car connecté -->
+                <div class="filter-group">
+                    <h3 class="filter-group-title">Possession</h3>
+                    <label class="filter-option"><input type="checkbox" data-group="owned" data-value="owned"    onchange="applyFilters()"/> Possédé</label>
+                    <label class="filter-option"><input type="checkbox" data-group="owned" data-value="not-owned" onchange="applyFilters()"/> Non possédé</label>
+                </div>
+            </aside>
+
+            <!-- ---- GRILLE – triée par rareté décroissante, générée par JS ---- -->
+            <section class="cards-grid-catalogue" id="cardsGrid"></section>
+
+        </div>
+
+
+        <!-- =====================================================
+             DECK BUILDER – section en bas de page
+             ===================================================== -->
+        <section class="deck-builder-section">
+
+            <!-- En-tête du deck builder -->
+            <div class="deck-builder-header">
+                <h2 class="deck-builder-title">Deck Builder</h2>
+                <div class="deck-builder-controls">
+                    <!-- Sélecteur de deck actif -->
+                    <select class="deck-select" id="deckSelect" onchange="switchDeck(this.value)"></select>
+                    <!-- Créer un nouveau deck -->
+                    <button class="deck-new-btn" onclick="createDeck()">+ Nouveau deck</button>
+                    <!-- Renommer le deck actif -->
+                    <button class="deck-rename-btn" onclick="renameDeck()">Renommer</button>
+                    <!-- Supprimer le deck actif -->
+                    <button class="deck-delete-btn" onclick="deleteDeck()">Supprimer</button>
+                </div>
+                <!-- Compteur de cartes dans le deck (X/25) -->
+                <span class="deck-count" id="deckCount">0 / 25</span>
+            </div>
+
+            <!-- Grille 5×5 des 25 emplacements du deck -->
+            <div class="deck-slots" id="deckSlots"></div>
+
+            <p class="deck-hint">Cliquez sur une carte possédée pour l'ajouter ou la retirer du deck actif.</p>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         MODAL – carte agrandie
+         ===================================================== -->
+    <div class="card-modal-overlay" id="cardModal" onclick="closeCardModal()">
+        <div class="card-modal-inner" onclick="event.stopPropagation()">
+            <button class="card-modal-close" onclick="closeCardModal()">✕</button>
+            <div id="cardModalFrame"></div>
+            <div class="card-modal-info" id="cardModalInfo"></div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         SCRIPTS
+         ===================================================== -->
+    <script src="game.js"></script>
+    <script>
+
+        /* ---- Header ---- */
+        function toggleAuthMenu() {
+            document.getElementById('authMenu').classList.toggle('hidden');
+        }
+        function simulateLogout() {
+            window.location.href = 'index.html';
+        }
+        document.addEventListener('click', e => {
+            if (!document.getElementById('avatarBtn').contains(e.target))
+                document.getElementById('authMenu').classList.add('hidden');
+        });
+
+
+        /* ---- Rendu de la collection (triée rareté décroissante) ---- */
+
+        function renderCollection() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            // Indices triés : mythique d'abord, commune en dernier
+            const sorted = Array.from({ length: 50 }, (_, i) => i)
+                .sort((a, b) =>
+                    Game.RARITY_ORDER.indexOf(Game.CARDS[a].rarity)
+                  - Game.RARITY_ORDER.indexOf(Game.CARDS[b].rarity)
+                );
+
+            const decks = Game.getDecks();
+            const activeIdx = Math.min(Game.getActiveDeckIdx(), decks.length - 1);
+            const activeDeck = decks[activeIdx] ?? { cards: [] };
+
+            sorted.forEach(i => {
+                const card  = Game.CARDS[i];
+                const owned = Game.owns(i);
+                const inDeck = activeDeck.cards.includes(i);
+
+                const div = document.createElement('div');
+                // Classes CSS : rareté + type + état possédé/non-possédé + dans le deck
+                div.className = [
+                    'card-item',
+                    `rarity-${card.rarity}`,
+                    `type-${card.type}`,
+                    !owned  ? 'not-owned' : '',
+                    inDeck  ? 'in-deck'   : ''
+                ].join(' ').trim();
+
+                div.dataset.index  = i;
+                div.dataset.rarity = card.rarity;
+                div.dataset.type   = card.type;
+                div.dataset.nation = card.nation;
+                div.dataset.name   = card.name.toLowerCase();
+                div.dataset.owned  = owned ? 'owned' : 'not-owned';
+
+                // Clic uniquement si la carte est possédée → ouvre le modal
+                if (owned) div.addEventListener('click', () => openCardModal(i));
+
+                div.innerHTML = `
+                    <div class="card-image"></div>
+                    <span class="card-name">${card.name}</span>
+                    ${inDeck ? '<span class="card-indeck-badge">Dans le deck</span>' : ''}
+                `;
+
+                grid.appendChild(div);
+            });
+
+            updateCollectionCount();
+            renderDeckBuilder();
+        }
+
+        /* Met à jour le compteur de cartes possédées */
+        function updateCollectionCount() {
+            const owned = Game.getCollection().size;
+            document.getElementById('collectionCount').textContent = `${owned} / 50`;
+        }
+
+
+        /* ---- Deck builder ---- */
+
+        function renderDeckBuilder() {
+            const decks    = Game.getDecks();
+            const activeIdx = Math.min(Game.getActiveDeckIdx(), decks.length - 1);
+            const deck     = decks[activeIdx] ?? { name: 'Deck 1', cards: [] };
+
+            // Sélecteur de deck
+            const select = document.getElementById('deckSelect');
+            select.innerHTML = decks.map((d, i) =>
+                `<option value="${i}" ${i === activeIdx ? 'selected' : ''}>
+                    ${d.name} (${d.cards.length}/25)
+                </option>`
+            ).join('');
+
+            // Compteur
+            document.getElementById('deckCount').textContent = `${deck.cards.length} / 25`;
+
+            // 25 emplacements (5 lignes × 5 colonnes)
+            const slotsEl = document.getElementById('deckSlots');
+            let html = '';
+            for (let s = 0; s < 25; s++) {
+                const cardIdx = deck.cards[s];
+                if (cardIdx !== undefined) {
+                    const c = Game.CARDS[cardIdx];
+                    html += `
+                        <div class="deck-slot filled rarity-${c.rarity}"
+                             onclick="removeFromDeck(${cardIdx})"
+                             title="Retirer cette carte">
+                            <span class="deck-slot-name">${c.name}</span>
+                        </div>`;
+                } else {
+                    html += `<div class="deck-slot empty"></div>`;
+                }
+            }
+            slotsEl.innerHTML = html;
+        }
+
+        /* Ajoute ou retire une carte du deck actif */
+        function toggleInDeck(cardIdx) {
+            const decks     = Game.getDecks();
+            const activeIdx = Math.min(Game.getActiveDeckIdx(), decks.length - 1);
+            const deck      = decks[activeIdx];
+            const pos       = deck.cards.indexOf(cardIdx);
+
+            if (pos >= 0) {
+                deck.cards.splice(pos, 1);      // Retirer
+            } else {
+                if (deck.cards.length >= 25) return; // Deck plein
+                deck.cards.push(cardIdx);       // Ajouter
+            }
+
+            Game.setDecks(decks);
+            renderCollection();
+            applyFilters();
+        }
+
+        function removeFromDeck(cardIdx) { toggleInDeck(cardIdx); }
+
+        /* Crée un nouveau deck vide */
+        function createDeck() {
+            const decks = Game.getDecks();
+            decks.push({ name: `Deck ${decks.length + 1}`, cards: [] });
+            Game.setDecks(decks);
+            Game.setActiveDeckIdx(decks.length - 1);
+            renderCollection();
+        }
+
+        /* Change le deck actif */
+        function switchDeck(idx) {
+            Game.setActiveDeckIdx(parseInt(idx));
+            renderCollection();
+            applyFilters();
+        }
+
+        /* Renommer le deck actif */
+        function renameDeck() {
+            const decks     = Game.getDecks();
+            const activeIdx = Game.getActiveDeckIdx();
+            const name = prompt('Nouveau nom du deck :', decks[activeIdx].name);
+            if (!name || !name.trim()) return;
+            decks[activeIdx].name = name.trim();
+            Game.setDecks(decks);
+            renderDeckBuilder();
+        }
+
+        /* Supprimer le deck actif (garde toujours au moins un deck) */
+        function deleteDeck() {
+            const decks = Game.getDecks();
+            if (decks.length <= 1) { alert('Impossible de supprimer le dernier deck.'); return; }
+            decks.splice(Game.getActiveDeckIdx(), 1);
+            Game.setDecks(decks);
+            Game.setActiveDeckIdx(0);
+            renderCollection();
+        }
+
+
+        /* ---- Filtres ---- */
+
+        function getChecked(group) {
+            return [...document.querySelectorAll(`input[data-group="${group}"]:checked`)]
+                .map(cb => cb.dataset.value);
+        }
+
+        function applyFilters() {
+            const rarities = getChecked('rarity');
+            const types    = getChecked('type');
+            const nations  = getChecked('nation');
+            const owned    = getChecked('owned');
+            const search   = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            document.querySelectorAll('.card-item').forEach(card => {
+                const ok = (rarities.length === 0 || rarities.includes(card.dataset.rarity))
+                        && (types.length    === 0 || types.includes(card.dataset.type))
+                        && (nations.length  === 0 || nations.includes(card.dataset.nation))
+                        && (owned.length    === 0 || owned.includes(card.dataset.owned))
+                        && (search          === '' || card.dataset.name.includes(search));
+                card.style.display = ok ? '' : 'none';
+            });
+        }
+
+
+        /* ---- Modal ---- */
+
+        function openCardModal(index) {
+            const card  = Game.CARDS[index];
+            const decks = Game.getDecks();
+            const activeIdx = Math.min(Game.getActiveDeckIdx(), decks.length - 1);
+            const inDeck = (decks[activeIdx] ?? { cards: [] }).cards.includes(index);
+
+            const RARITY_LABELS = {
+                'commune': 'Commune', 'peu-commune': 'Peu commune',
+                'rare': 'Rare', 'epique': 'Épique',
+                'legendaire': 'Légendaire', 'mythique': 'Mythique'
+            };
+            const TYPE_LABELS = {
+                'personnage': 'Personnage', 'equipement': 'Équipement', 'ville': 'Ville'
+            };
+            const NATION_LABELS = {
+                'bonta': 'Bonta', 'brakmar': 'Brâkmar',
+                'astrub': 'Astrub', 'amakna': 'Amakna', 'frigost': 'Frigost'
+            };
+
+            // Carte agrandie
+            const frame = document.getElementById('cardModalFrame');
+            frame.className = `card-item card-modal-card rarity-${card.rarity} type-${card.type}`;
+            frame.innerHTML = `<div class="card-image"></div>`;
+
+            // Infos
+            document.getElementById('cardModalInfo').innerHTML = `
+                <h2 class="card-modal-name">${card.name}</h2>
+                <div class="card-modal-meta">
+                    <div class="card-modal-meta-row">
+                        <span class="card-modal-meta-label">Type</span>
+                        <span class="card-modal-meta-value">${TYPE_LABELS[card.type]}</span>
+                    </div>
+                    <div class="card-modal-meta-row">
+                        <span class="card-modal-meta-label">Rareté</span>
+                        <span class="card-modal-meta-value">${RARITY_LABELS[card.rarity]}</span>
+                    </div>
+                    <div class="card-modal-meta-row">
+                        <span class="card-modal-meta-label">Nation</span>
+                        <span class="card-modal-meta-value">${NATION_LABELS[card.nation]}</span>
+                    </div>
+                </div>
+                <button class="card-modal-action-btn ${inDeck ? 'btn-deck-remove' : 'btn-deck-add'}"
+                        onclick="toggleInDeck(${index}); closeCardModal()">
+                    ${inDeck ? 'Retirer du deck' : 'Ajouter au deck'}
+                </button>
+            `;
+
+            document.getElementById('cardModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCardModal() {
+            document.getElementById('cardModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeCardModal();
+        });
+
+
+        /* ---- Init ---- */
+        renderCollection();
+
+    </script>
+
+</body>
+</html>
